@@ -15,7 +15,7 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://SEU-PROJETO.vercel.app"
+    "https://sos-psi-frontend.vercel.app"
   ],
   credentials: true
 }));
