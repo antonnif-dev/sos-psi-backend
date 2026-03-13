@@ -1,0 +1,14 @@
+function roleMiddleware(roles) {
+
+ return (req, res, next) => {
+
+  if (!roles.includes(req.role)) {
+   return res.status(403).json({ error: "Sem permissão" });
+  }
+
+  next();
+ };
+
+}
+
+module.exports = roleMiddleware;
