@@ -9,9 +9,11 @@ const prontuarioRoutes = require("./routes/prontuario.routes");
 const financeiroRoutes = require("./routes/financeiro.routes");
 const documentosRoutes = require("./routes/documentos.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
+const medicamentosRoutes = require("./routes/medicamentos.routes");
+const prescricoesRoutes = require("./routes/prescricoes.routes");
+const notificacoesRoutes = require("./routes/notificacoes.routes");
 
 const app = express();
-//adcionar url
 app.use(cors({
   origin: [
     "http://localhost:5173",
@@ -47,5 +49,14 @@ app.use("/documentos", documentosRoutes);
 
 //dashboard
 app.use("/dashboard", dashboardRoutes);
+
+//medicamentos
+app.use("/medicamentos", medicamentosRoutes);
+
+//prescrições
+app.use("/prescricoes", prescricoesRoutes);
+
+//notificações
+app.use("/notificacoes", notificacoesRoutes);
 
 module.exports = app;
