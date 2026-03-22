@@ -1,16 +1,23 @@
 const repo = require("../repositories/pacientes.repository");
+const pacienteEvents = require("../events/paciente.events")
 
-async function criarPaciente(tenantId, data) {
-
+async function criarPaciente(tenantId, data, userId) {
     if (!data.nome) {
         throw new Error("Nome obrigatório");
     }
+    const id = await repo.criarPaciente(tenantId, data);
 
-    return await repo.criarPaciente(tenantId, data);
+    if (userId) {
+        await pacienteEvents.pacienteCriado(tenantId, {
+            ...data,
+            psicologoId: userId
+        });
+    }
+
+    return id;
 }
 
 async function listarPacientes(tenantId) {
-
     return await repo.listarPacientes(tenantId);
 }
 

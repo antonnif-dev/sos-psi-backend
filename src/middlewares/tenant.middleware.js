@@ -2,44 +2,41 @@ const { db } = require("../config/firebase");
 
 async function tenantMiddleware(req, res, next) {
 
- try {
+    try {
+        const uid = req.user.uid;
+        console.log("UID recebido:", uid);
 
-  console.log("Tenant middleware iniciou");
+        const snapshot = await db
+            .collectionGroup("usuarios")
+            .where("uid", "==", uid)
+            .limit(1)
+            .get();
 
-  const uid = req.user.uid;
-  console.log("UID recebido:", uid);
+        console.log("Query executada");
 
-  const snapshot = await db
-   .collectionGroup("usuarios")
-   .where("uid","==",uid)
-   .limit(1)
-   .get();
+        if (snapshot.empty) {
+            console.log("Usuário não encontrado em nenhum tenant");
+            return res.status(403).json({ error: "Usuário não pertence a tenant" });
+        }
 
-  console.log("Query executada");
+        const userDoc = snapshot.docs[0].data();
 
-  if (snapshot.empty) {
-   console.log("Usuário não encontrado em nenhum tenant");
-   return res.status(403).json({ error: "Usuário não pertence a tenant" });
-  }
+        console.log("Usuário encontrado:", userDoc);
 
-  const userDoc = snapshot.docs[0].data();
+        req.tenantId = userDoc.tenantId;
+        req.role = userDoc.role;
 
-  console.log("Usuário encontrado:", userDoc);
+        next();
 
-  req.tenantId = userDoc.tenantId;
-  req.role = userDoc.role;
+    } catch (error) {
 
-  next();
+        console.error("ERRO NO TENANT MIDDLEWARE:", error);
 
- } catch (error) {
+        return res.status(500).json({
+            error: "Erro ao identificar tenant"
+        });
 
-  console.error("ERRO NO TENANT MIDDLEWARE:", error);
-
-  return res.status(500).json({
-   error: "Erro ao identificar tenant"
-  });
-
- }
+    }
 
 }
 

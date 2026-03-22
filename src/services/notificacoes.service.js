@@ -1,32 +1,33 @@
-const repository = require("../repositories/notificacoes.repository")
+const repo = require("../repositories/notificacoes.repository")
 
-async function createNotificacao(userId, title, message, link, type){
-
-  return await repository.create({
-    user_id: userId,
-    title,
-    message,
-    link,
-    type,
-    read: false
-  })
+async function getNotificacoes(tenantId, userId) {
+    return await repo.getNotificacoes(tenantId, userId)
 }
 
-async function getNotificacoes(userId){
-  return await repository.getByUser(userId)
+async function getUnreadCount(tenantId, userId) {
+    return await repo.getUnreadCount(tenantId, userId)
 }
 
-async function getUnreadCount(userId){
-  return await repository.getUnreadCount(userId)
+async function markAsRead(tenantId, id) {
+    return await repo.markAsRead(tenantId, id)
 }
 
-async function markAsRead(id){
-  return await repository.markAsRead(id)
+async function createNotificacao(tenantId, userId, title, message, link, type) {
+
+    return await repo.createNotificacao({
+        tenantId,
+        userId,
+        title,
+        message,
+        link,
+        type
+    })
+
 }
 
 module.exports = {
-  createNotificacao,
-  getNotificacoes,
-  getUnreadCount,
-  markAsRead
+    getNotificacoes,
+    getUnreadCount,
+    markAsRead,
+    createNotificacao
 }

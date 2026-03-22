@@ -1,36 +1,67 @@
-//const db = require("../config/database")
+const { db } = require("../config/firebase")
 
-async function create(notificacao) {
-  const result = await db("notificacoes")
-    .insert(notificacao)
-    .returning("*")
-  return result[0]
+async function getNotificacoes(tenantId, userId) {
+
+    const snapshot = await db
+        .collection("tenants")
+        .doc(tenantId)
+        .collection("notificacoes")
+        .where("userId", "==", userId)
+        .orderBy("createdAt", "desc")
+        .limit(20)
+        .get()
+
+    return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }))
 }
 
-async function getByUser(userId){
-  return await db("notificacoes")
-    .where({ user_id: userId })
-    .orderBy("read", "asc")
-    .orderBy("created_at", "desc")
-    .limit(20)
+async function getUnreadCount(tenantId, userId) {
+
+    const snapshot = await db
+        .collection("tenants")
+        .doc(tenantId)
+        .collection("notificacoes")
+        .where("userId", "==", userId)
+        .where("read", "==", false)
+        .get()
+
+    return snapshot.size
 }
 
-async function getUnreadCount(userId){
-  const result = await db("notificacoes")
-    .where({ user_id: userId, read: false })
-    .count()
-  return result[0].count
+async function markAsRead(tenantId, id) {
+
+    await db
+        .collection("tenants")
+        .doc(tenantId)
+        .collection("notificacoes")
+        .doc(id)
+        .update({
+            read: true
+        })
+
 }
 
-async function markAsRead(id){
-  return await db("notificacoes")
-    .where({ id })
-    .update({ read: true })
+async function createNotificacao(data) {
+
+    const { tenantId } = data
+
+    await db
+        .collection("tenants")
+        .doc(tenantId)
+        .collection("notificacoes")
+        .add({
+            ...data,
+            read: false,
+            createdAt: new Date()
+        })
+
 }
 
 module.exports = {
-  create,
-  getByUser,
-  getUnreadCount,
-  markAsRead
+    getNotificacoes,
+    getUnreadCount,
+    markAsRead,
+    createNotificacao
 }

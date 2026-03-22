@@ -1,13 +1,38 @@
-const express = require("express")
-const router = express.Router()
+const express = require("express");
 
-const controller = require("../controllers/notificacoes.controller")
-const auth = require("../middlewares/auth.middleware")
+const authMiddleware = require("../middlewares/auth.middleware");
+const controller = require("../controllers/notificacoes.controller");
+const auth = require("../middlewares/auth.middleware");
+const tenant = require("../middlewares/tenant.middleware");
 
-router.get("/", auth, controller.getNotificacoes)
+const router = express.Router();
 
-router.get("/unread-count", auth, controller.getUnreadCount)
+router.get(
+    "/",
+    auth,
+    tenant,
+    controller.getNotificacoes
+);
 
-router.patch("/:id/read", auth, controller.markAsRead)
+router.get(
+    "/unread-count",
+    auth,
+    tenant,
+    controller.getUnreadCount
+);
+
+router.patch(
+    "/:id/read",
+    auth,
+    tenant,
+    controller.markAsRead
+);
+
+router.put(
+    "/:id/read",
+    auth,
+    tenant,
+    controller.markAsRead
+);
 
 module.exports = router

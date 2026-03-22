@@ -5,11 +5,13 @@ async function criarPaciente(req, res) {
     try {
         const id = await service.criarPaciente(
             req.tenantId,
-            req.body
+            req.body,
+            req.user?.uid
         );
 
         res.json({ id });
     } catch (error) {
+        console.error("ERRO CRIAR PACIENTE:", error);
         res.status(400).json({ error: error.message });
     }
 }
