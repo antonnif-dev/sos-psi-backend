@@ -7,24 +7,45 @@ const tenant = require("../middlewares/tenant.middleware");
 const router = express.Router();
 
 router.post(
- "/",
- auth,
- tenant,
- controller.criarPrescricao
+    "/",
+    auth,
+    tenant,
+    controller.criarPrescricao
 );
 
 router.get(
- "/paciente/:pacienteId",
- auth,
- tenant,
- controller.listarPorPaciente
+    "/paciente/:pacienteId",
+    auth,
+    tenant,
+    controller.listarPorPaciente
+);
+
+router.get(
+    "/templates",
+    auth,
+    tenant,
+    controller.buscarTemplate
 );
 
 router.delete(
- "/:id",
+    "/:id",
+    auth,
+    tenant,
+    controller.deletarPrescricao
+);
+
+router.post(
+    "/:id/assinar",
+    auth,
+    tenant,
+    controller.assinarPrescricao
+);
+
+router.post(
+ "/:id/enviar-assinatura",
  auth,
  tenant,
- controller.deletarPrescricao
+ controller.enviarParaAssinatura
 );
 
 module.exports = router;

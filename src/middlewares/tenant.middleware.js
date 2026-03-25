@@ -25,6 +25,7 @@ async function tenantMiddleware(req, res, next) {
 
         req.tenantId = userDoc.tenantId;
         req.role = userDoc.role;
+        req.user = userDoc;
 
         next();
 

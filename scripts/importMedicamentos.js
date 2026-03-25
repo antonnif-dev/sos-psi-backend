@@ -5,7 +5,7 @@ const csv = require("csv-parser")
 const iconv = require("iconv-lite")
 const { db } = require("../src/config/firebase")
 
-const START_LINE = 35408
+const START_LINE = 42859
 const BATCH_SIZE = 500
 
 async function importar() {
