@@ -6,7 +6,9 @@ const tenant = require("../middlewares/tenant.middleware");
 const router = express.Router();
 
 router.post("/", auth, tenant, controller.criarConsulta);
+
 router.get("/", auth, tenant, controller.listarConsultas);
+router.get("/realizadas", auth, tenant, controller.listarRealizadas);
 
 router.put("/:id", auth, tenant, controller.editarConsulta);
 

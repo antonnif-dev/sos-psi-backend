@@ -45,9 +45,19 @@ async function deletarConsulta(req, res) {
     }
 }
 
+async function listarRealizadas(req, res) {
+    try {
+        const consultas = await service.listarRealizadas(req.tenantId);
+        res.json(consultas);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 module.exports = {
     criarConsulta,
     listarConsultas,
     editarConsulta,
-    deletarConsulta
+    deletarConsulta,
+    listarRealizadas
 };

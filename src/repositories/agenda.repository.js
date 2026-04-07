@@ -87,9 +87,45 @@ async function deletarConsulta(tenantId, id) {
     .delete();
 }
 
+async function listarRealizadas(tenantId) {
+  const snapshot = await db
+    .collection("tenants")
+    .doc(tenantId)
+    .collection("agenda")
+    .where("status", "==", "realizada")
+    .get();
+
+  return snapshot.docs.map(doc => {
+    const data = doc.data();
+
+    function converter(valor) {
+      if (!valor) return null;
+      if (valor.toDate) {
+        return valor.toDate().toISOString();
+      }
+      if (typeof valor === "number") {
+        return new Date(valor).toISOString();
+      }
+      if (typeof valor === "string") {
+        return new Date(valor).toISOString();
+      }
+      return valor;
+    }
+
+    return {
+      id: doc.id,
+      ...data,
+      data: converter(data.data),
+      createdAt: converter(data.createdAt),
+      updatedAt: converter(data.updatedAt)
+    };
+  });
+}
+
 module.exports = {
   criarConsulta,
   listarConsultas,
   editarConsulta,
-  deletarConsulta
+  deletarConsulta,
+  listarRealizadas
 };

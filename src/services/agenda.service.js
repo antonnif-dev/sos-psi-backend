@@ -2,7 +2,7 @@ const repo = require("../repositories/agenda.repository");
 const agendaEvents = require("../events/agenda.events");
 
 async function criarConsulta(tenantId, data, psicologoId) {
-
+    const pacientesRepo = require("../repositories/pacientes.repository");
     if (!data.pacienteId) {
         throw new Error("Paciente obrigatório");
     }
@@ -23,6 +23,13 @@ async function criarConsulta(tenantId, data, psicologoId) {
     if (conflito) {
         throw new Error("Já existe consulta neste horário");
     }
+
+    const paciente = await pacientesRepo.buscarPorId(
+        tenantId,
+        data.pacienteId
+    );
+
+    data.pacienteNome = paciente.nome;
     data.status = "agendada";
     data.psicologoId = psicologoId;
 
@@ -42,7 +49,7 @@ async function listarConsultas(tenantId) {
 
     for (const consulta of consultas) {
         if (consulta.status === "agendada") {
-            const dataConsulta = new Date(consulta.data);
+            const dataConsulta = new Date(new Date(consulta.data).getTime());
             const fimConsulta = new Date(dataConsulta.getTime() + 50 * 60000);
             if (agora >= fimConsulta) {
                 await repo.editarConsulta(
@@ -90,9 +97,14 @@ async function deletarConsulta(tenantId, id) {
     }
 }
 
+async function listarRealizadas(tenantId) {
+    return await repo.listarRealizadas(tenantId);
+}
+
 module.exports = {
     criarConsulta,
     listarConsultas,
     editarConsulta,
-    deletarConsulta
+    deletarConsulta,
+    listarRealizadas
 };

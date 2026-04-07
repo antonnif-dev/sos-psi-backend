@@ -1,4 +1,5 @@
-const notificacoesService = require("../services/notificacoes.service")
+const notificacoesService = require("../services/notificacoes.service");
+const agendaNotificacaoService = require("../services/agendaNotificacao.service");
 
 async function consultaCriada(tenantId, consulta) {
     if (!consulta.psicologoId) return
@@ -22,6 +23,22 @@ async function consultaFinalizada(tenantId, consulta) {
         "/agenda",
         "agenda"
     )
+
+    const pagamentos = await financeiroRepo.listarPagamentos(tenantId)
+
+    const jaExiste = pagamentos.find(
+        p => p.consultaId === consulta.id
+    )
+    if (jaExiste) return
+    await financeiroRepo.criarPagamento(tenantId, {
+        consultaId: consulta.id,
+        pacienteId: consulta.pacienteId,
+        pacienteNome: consulta.pacienteNome,
+        dataSessao: consulta.data,
+        valor: consulta.valor || 0,
+        status: "em_aberto",
+        origem: "consulta"
+    })
 }
 
 async function consultaCancelada(tenantId, consulta) {
@@ -36,8 +53,13 @@ async function consultaCancelada(tenantId, consulta) {
     )
 }
 
+async function sessaoCriada(sessao) {
+  await agendaNotificacaoService.notificarCriacaoSessao(sessao);
+}
+
 module.exports = {
     consultaCriada,
     consultaFinalizada,
-    consultaCancelada
+    consultaCancelada,
+    sessaoCriada
 }

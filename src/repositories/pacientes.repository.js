@@ -50,9 +50,27 @@ async function deletarPaciente(tenantId, id) {
         .delete();
 }
 
+async function buscarPorId(tenantId, id) {
+
+    const doc = await db
+        .collection("tenants")
+        .doc(tenantId)
+        .collection("pacientes")
+        .doc(id)
+        .get();
+
+    if (!doc.exists) return null;
+
+    return {
+        id: doc.id,
+        ...doc.data()
+    };
+}
+
 module.exports = {
     criarPaciente,
     listarPacientes,
     editarPaciente,
-    deletarPaciente
+    deletarPaciente,
+    buscarPorId
 };
