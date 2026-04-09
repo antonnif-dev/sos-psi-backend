@@ -1,5 +1,6 @@
 const { db } = require("../config/firebase");
 const { v4: uuid } = require("uuid");
+const { collection, query, where, getDocs } = require('firebase/firestore');
 
 async function criarConsulta(tenantId, data) {
   const id = uuid();
@@ -122,10 +123,33 @@ async function listarRealizadas(tenantId) {
   });
 }
 
+async function buscarSessoesFuturas() {
+  try {
+    const agora = new Date();
+
+    const sessoesRef = collection(db, 'agenda');
+
+    const q = query(sessoesRef, where('dataHora', '>', agora));
+
+    const snapshot = await getDocs(q);
+
+    const sessoesFuturas = [];
+    snapshot.forEach(doc => {
+      sessoesFuturas.push({ id: doc.id, ...doc.data() });
+    });
+
+    return sessoesFuturas;
+  } catch (error) {
+    console.error('Erro ao buscar sessões futuras:', error);
+    return [];
+  }
+}
+
 module.exports = {
   criarConsulta,
   listarConsultas,
   editarConsulta,
   deletarConsulta,
-  listarRealizadas
+  listarRealizadas,
+  buscarSessoesFuturas
 };

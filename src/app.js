@@ -14,6 +14,7 @@ const dashboardRoutes = require("./routes/dashboard.routes");
 const medicamentosRoutes = require("./routes/medicamentos.routes");
 const prescricoesRoutes = require("./routes/prescricoes.routes");
 const notificacoesRoutes = require("./routes/notificacoes.routes");
+require("./jobs/notificacoes.job");
 
 const app = express();
 app.use(cors({
