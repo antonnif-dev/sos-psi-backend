@@ -3,35 +3,40 @@ const express = require("express");
 const controller = require("../controllers/pacientes.controller");
 const auth = require("../middlewares/auth.middleware");
 const tenant = require("../middlewares/tenant.middleware");
+const role = require("../middlewares/role.middleware");
 
 const router = express.Router();
 
 router.post(
- "/",
- auth,
- tenant,
- controller.criarPaciente
+    "/",
+    auth,
+    tenant,
+    role(["admin", "psicologo", "secretaria"]),
+    controller.criarPaciente
 );
 
 router.get(
- "/",
- auth,
- tenant,
- controller.listarPacientes
+    "/",
+    auth,
+    tenant,
+    role(["admin", "psicologo", "secretaria"]),
+    controller.listarPacientes
 );
 
 router.put(
- "/:id",
- auth,
- tenant,
- controller.editarPaciente
+    "/:id",
+    auth,
+    tenant,
+    role(["admin", "psicologo", "secretaria"]),
+    controller.editarPaciente
 );
 
 router.delete(
- "/:id",
- auth,
- tenant,
- controller.deletarPaciente
+    "/:id",
+    auth,
+    tenant,
+    role(["admin", "psicologo", "secretaria"]),
+    controller.deletarPaciente
 );
 
 module.exports = router;

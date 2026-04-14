@@ -14,6 +14,7 @@ const dashboardRoutes = require("./routes/dashboard.routes");
 const medicamentosRoutes = require("./routes/medicamentos.routes");
 const prescricoesRoutes = require("./routes/prescricoes.routes");
 const notificacoesRoutes = require("./routes/notificacoes.routes");
+const userRoutes = require("./routes/user.routes");
 require("./jobs/notificacoes.job");
 
 const app = express();
@@ -34,6 +35,9 @@ app.get("/", (req, res) => {
 
 //pacientes
 app.use("/pacientes", pacientesRoutes);
+
+//routes
+app.use("/api", userRoutes);
 
 //auth
 app.use("/auth", authRoutes);

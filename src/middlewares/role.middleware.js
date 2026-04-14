@@ -1,14 +1,16 @@
-function roleMiddleware(roles) {
+function roleMiddleware(rolesPermitidas) {
+  return (req, res, next) => {
+    
+    if (!req.role) {
+      return res.status(403).json({ error: "Role não definida" });
+    }
 
- return (req, res, next) => {
+    if (!rolesPermitidas.includes(req.role)) {
+      return res.status(403).json({ error: "Sem permissão" });
+    }
 
-  if (!roles.includes(req.role)) {
-   return res.status(403).json({ error: "Sem permissão" });
-  }
-
-  next();
- };
-
+    next();
+  };
 }
 
 module.exports = roleMiddleware;

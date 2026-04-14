@@ -4,6 +4,7 @@ const authMiddleware = require("../middlewares/auth.middleware");
 const controller = require("../controllers/notificacoes.controller");
 const auth = require("../middlewares/auth.middleware");
 const tenant = require("../middlewares/tenant.middleware");
+//const role = require("../middlewares/role.middleware");
 
 const router = express.Router();
 

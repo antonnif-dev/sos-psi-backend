@@ -19,13 +19,14 @@ async function tenantMiddleware(req, res, next) {
             return res.status(403).json({ error: "Usuário não pertence a tenant" });
         }
 
-        const userDoc = snapshot.docs[0].data();
+        const user = await UserService.findByUid(decoded.uid);
 
-        console.log("Usuário encontrado:", userDoc);
+        if (!user) {
+            return res.status(403).json({ error: 'Usuário não cadastrado' });
+        }
 
-        req.tenantId = userDoc.tenantId;
-        req.role = userDoc.role;
-        req.user = userDoc;
+        req.user = user;
+        req.tenantId = user.tenantId;
 
         next();
 
