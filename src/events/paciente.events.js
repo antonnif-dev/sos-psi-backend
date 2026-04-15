@@ -1,16 +1,26 @@
-const notificacoesService = require("../services/notificacoes.service")
+const notificacoesService = require("../services/notificacoes.service");
+const labelsConfig = require("../config/labels");
+const tenantService = require("../services/tenant.service");
 
 async function pacienteCriado(tenantId, paciente) {
-    if (!paciente.psicologoId) return
+    console.log("🔥 pacienteCriado EXECUTOU");
+    console.log("TENANT:", tenant);
+    console.log("SEGMENTO:", tenant.segmento);
+    console.log("LABEL USADO:", labelsConfig[tenant.segmento]);
+    if (!paciente.psicologoId) return;
+
+    const tenant = await tenantService.buscarTenant(tenantId);
+
+    const labels = labelsConfig[tenant.segmento];
 
     await notificacoesService.createNotificacao(
         tenantId,
         paciente.psicologoId,
-        "Novo paciente cadastrado",
+        "XXXXX TESTE XXXXX",
         `${paciente.nome} foi cadastrado no sistema`,
         "/pacientes",
         "paciente"
-    )
+    );
 }
 
 async function verificarPacientesSemSessao() {

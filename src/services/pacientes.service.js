@@ -1,5 +1,6 @@
 const repo = require("../repositories/pacientes.repository");
-const pacienteEvents = require("../events/paciente.events")
+const pacienteEvents = require("../events/paciente.events");
+const { db } = require("../config/firebase");
 
 async function criarPaciente(tenantId, data, userId) {
     if (!data.nome) {
@@ -18,6 +19,7 @@ async function criarPaciente(tenantId, data, userId) {
 }
 
 async function listarPacientes(tenantId) {
+    console.log("SERVICE TENANT ID:", tenantId);
     return await repo.listarPacientes(tenantId);
 }
 

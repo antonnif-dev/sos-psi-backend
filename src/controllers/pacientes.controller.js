@@ -17,8 +17,11 @@ async function criarPaciente(req, res) {
 }
 
 async function listarPacientes(req, res) {
+    console.log("CHEGOU NO CONTROLLER");
     const pacientes = await service.listarPacientes(req.tenantId);
+    console.log("PACIENTES:", pacientes);
     res.json(pacientes);
+    console.log("REQ.TENANT NO CONTROLLER:", req.tenantId);
 }
 
 async function editarPaciente(req, res) {
