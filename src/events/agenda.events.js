@@ -1,29 +1,34 @@
 const notificacoesService = require("../services/notificacoes.service");
 const agendaNotificacaoService = require("../services/agendaNotificacao.service");
-const { formatDateTimeBR, formatTimeBR } = require("../utils/dateUtils")
+const { formatDateTimeBR, formatTimeBR } = require("../utils/dateUtils");
+const { notify } = require("../services/notificationEngine.service");
 
 async function consultaCriada(tenantId, consulta) {
+
     if (!consulta.psicologoId) return
-    await notificacoesService.createNotificacao(
+
+    await notify({
         tenantId,
-        consulta.psicologoId,
-        "Nova consulta agendada",
-        `Consulta agendada para ${formatDateTimeBR(consulta.data)}`,
-        "/agenda",
-        "agenda"
-    )
+        userId: consulta.psicologoId,
+        type: "CONSULTA_CRIADA",
+        data: {
+            nome: consulta.pacienteNome,
+            data: formatDateTimeBR(consulta.data)
+        }
+    })
 }
 
 async function consultaFinalizada(tenantId, consulta) {
     if (!consulta.psicologoId) return
-    await notificacoesService.createNotificacao(
+
+    await notify({
         tenantId,
-        consulta.psicologoId,
-        "Sessão finalizada",
-        `A sessão das ${formatTimeBR(consulta.data)} foi finalizada`,
-        "/agenda",
-        "agenda"
-    )
+        userId: consulta.psicologoId,
+        type: "CONSULTA_FINALIZADA",
+        data: {
+            hora: formatTimeBR(consulta.data)
+        }
+    })
 
     const pagamentos = await financeiroRepo.listarPagamentos(tenantId)
 
@@ -44,14 +49,15 @@ async function consultaFinalizada(tenantId, consulta) {
 
 async function consultaCancelada(tenantId, consulta) {
     if (!consulta.psicologoId) return
-    await notificacoesService.createNotificacao(
+
+    await notify({
         tenantId,
-        consulta.psicologoId,
-        "Consulta cancelada",
-        `A consulta das ${formatTimeBR(consulta.data)} foi cancelada`,
-        "/agenda",
-        "agenda"
-    )
+        userId: consulta.psicologoId,
+        type: "CONSULTA_CANCELADA",
+        data: {
+            hora: formatTimeBR(consulta.data)
+        }
+    })
 }
 
 async function sessaoCriada(sessao) {
@@ -77,23 +83,48 @@ async function verificarSessoesDoDia() {
     )
 }
 
-async function verificarDiaSemAgenda() {
+async function verificarSessoesDoDia() {
+
     const hoje = new Date().toISOString().split("T")[0]
     const consultas = await agendaRepository.listar()
+
     const hojeConsultas = consultas.filter(c =>
         c.data.startsWith(hoje)
     )
 
-    if (hojeConsultas.length === 0) {
-        const consulta = consultas[0]
-        await notificacoesService.createNotificacao(
-            consulta.tenantId,
-            consulta.psicologoId,
-            "Dia sem agenda",
-            "Hoje você não possui sessões agendadas",
-            "/agenda",
-            "dia_sem_agenda"
-        )
+    if (!hojeConsultas.length) return
+
+    const c = hojeConsultas[0]
+
+    await notify({
+        tenantId: c.tenantId,
+        userId: c.psicologoId,
+        type: "SESSOES_DO_DIA",
+        data: {
+            total: hojeConsultas.length
+        }
+    })
+}
+
+async function verificarDiaSemAgenda() {
+
+    const hoje = new Date().toISOString().split("T")[0]
+    const consultas = await agendaRepository.listar()
+
+    const hojeConsultas = consultas.filter(c =>
+        c.data.startsWith(hoje)
+    )
+
+    if (hojeConsultas.length === 0 && consultas.length > 0) {
+
+        const c = consultas[0]
+
+        await notify({
+            tenantId: c.tenantId,
+            userId: c.psicologoId,
+            type: "DIA_SEM_AGENDA",
+            data: {}
+        })
     }
 }
 

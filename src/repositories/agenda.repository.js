@@ -127,7 +127,12 @@ async function buscarSessoesFuturas() {
   try {
     const agora = new Date();
 
-    const sessoesRef = collection(db, 'agenda');
+    const sessoesRef = await db
+    .collection("tenants")
+    .doc(tenantId)
+    .collection("agenda")
+    .where("status", "==", "realizada")
+    .get();
 
     const q = query(sessoesRef, where('dataHora', '>', agora));
 

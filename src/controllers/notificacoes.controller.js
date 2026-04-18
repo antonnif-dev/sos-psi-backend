@@ -1,10 +1,18 @@
 const service = require("../services/notificacoes.service")
 
 async function getNotificacoes(req, res) {
-    console.log("TENANT:", req.tenantId)
-    console.log("USER:", req.user?.uid)
-    console.log("TOKEN COMPLETO:", req.user)
     try {
+
+        console.log("TENANT:", req.tenantId)
+        console.log("USER:", req.user)
+
+        if (!req.user?.uid) {
+            return res.status(400).json({ error: "User inválido" })
+        }
+
+        if (!req.tenantId) {
+            return res.status(400).json({ error: "Tenant inválido" })
+        }
 
         const data = await service.getNotificacoes(
             req.tenantId,
@@ -14,8 +22,8 @@ async function getNotificacoes(req, res) {
         res.json(data)
 
     } catch (error) {
-        console.error("erro notificacoes:", error)
-        res.status(500).json({ error: "Erro ao buscar notificações" })
+        console.error("ERRO REAL:", error)
+        res.status(500).json({ error: error.message })
     }
 }
 
