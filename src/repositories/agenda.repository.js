@@ -20,6 +20,7 @@ async function criarConsulta(tenantId, data) {
 }
 
 async function listarConsultas(tenantId) {
+  if (!tenantId) return [];
 
   const snapshot = await db
     .collection("tenants")
@@ -123,31 +124,55 @@ async function listarRealizadas(tenantId) {
   });
 }
 
-async function buscarSessoesFuturas() {
+async function buscarSessoesFuturas(tenantId, pacienteId) {
   try {
+    if (!tenantId || !pacienteId) return [];
     const agora = new Date();
 
-    const sessoesRef = await db
+    const snapshot = await db
+      .collection("tenants")
+      .doc(tenantId)
+      .collection("agenda")
+      .where("pacienteId", "==", pacienteId)
+      .where("data", ">", agora)
+      .get();
+
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+  } catch (error) {
+    console.error("Erro ao buscar sessões futuras:", error);
+    return [];
+  }
+}
+
+async function buscarPorId(tenantId, id) {
+  const doc = await db
     .collection("tenants")
     .doc(tenantId)
     .collection("agenda")
-    .where("status", "==", "realizada")
+    .doc(id)
     .get();
 
-    const q = query(sessoesRef, where('dataHora', '>', agora));
+  return doc.exists ? doc.data() : null;
+}
 
-    const snapshot = await getDocs(q);
+async function listarPorPaciente(tenantId, pacienteId) {
+  if (!tenantId || !pacienteId) return [];
 
-    const sessoesFuturas = [];
-    snapshot.forEach(doc => {
-      sessoesFuturas.push({ id: doc.id, ...doc.data() });
-    });
+  const snapshot = await db
+    .collection("tenants")
+    .doc(tenantId)
+    .collection("agenda")
+    .where("pacienteId", "==", pacienteId)
+    .get();
 
-    return sessoesFuturas;
-  } catch (error) {
-    console.error('Erro ao buscar sessões futuras:', error);
-    return [];
-  }
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
 }
 
 module.exports = {
@@ -156,5 +181,7 @@ module.exports = {
   editarConsulta,
   deletarConsulta,
   listarRealizadas,
-  buscarSessoesFuturas
+  buscarSessoesFuturas,
+  buscarPorId,
+  listarPorPaciente
 };

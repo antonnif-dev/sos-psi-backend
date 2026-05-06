@@ -5,6 +5,9 @@ const auth = require("../middlewares/auth.middleware");
 const tenant = require("../middlewares/tenant.middleware");
 const role = require("../middlewares/role.middleware");
 
+const { carregarUso } = require("../middlewares/carregarUso.middleware");
+const { verificarLimite } = require("../middlewares/verificarLimite.middleware");
+
 const router = express.Router();
 
 router.post(
@@ -12,6 +15,8 @@ router.post(
     auth,
     tenant,
     role(["admin", "psicologo", "secretaria"]),
+    carregarUso,
+    verificarLimite("pacientes"),
     controller.criarPaciente
 );
 

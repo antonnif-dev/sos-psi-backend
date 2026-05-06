@@ -1,87 +1,126 @@
 const labelsConfig = require("./labels");
 
 function getLabels(segmento) {
-    return labelsConfig[segmento] || labelsConfig.saude
+    return labelsConfig[segmento] || labelsConfig.saude;
 }
 
 module.exports = {
 
     PACIENTE_CRIADO: {
-        title: () => "Novo paciente",
-        message: (d) => `${d.nome} foi cadastrado no sistema`,
-        link: () => "/pacientes",
-        channels: ["app"]
-    },
-    //exemplo com labels
-    /*
-    PACIENTE_CRIADO: {
-        title: ({ segmento }) => {
-            const labels = getLabels(segmento)
-            return `Novo ${labels.paciente}`
+        title: (d) => {
+            const labels = getLabels(d.segmento);
+            return `Novo ${labels.paciente}`;
         },
-        message: ({ data, segmento }) => {
-            const labels = getLabels(segmento)
-            return `${data.nome} foi cadastrado como ${labels.paciente}`
+        message: (d) => {
+            const labels = getLabels(d.segmento);
+            return `${d.nome} foi cadastrado como ${labels.paciente}`;
         },
         link: () => "/pacientes",
         channels: ["app"]
     },
-    */
 
     PACIENTE_SEM_SESSAO: {
-        title: () => "Paciente sem sessão",
-        message: (d) =>
-            `${d.nome} está sem sessão há ${d.dias} dias`,
+        title: (d) => {
+            const labels = getLabels(d.segmento);
+            return `${labels.paciente} sem ${labels.sessao}`;
+        },
+        message: (d) => {
+            const labels = getLabels(d.segmento);
+            return `${d.nome} está sem ${labels.sessao} há ${d.dias} dias`;
+        },
         link: (d) => `/pacientes/${d.id}`,
         channels: ["app"]
     },
 
     PACIENTE_SEM_SESSAO_MARCADA: {
-        title: () => "Paciente sem agendamento",
-        message: (d) =>
-            `${d.nome} ainda não possui sessão marcada`,
+        title: (d) => {
+            const labels = getLabels(d.segmento);
+            return `${labels.paciente} sem agendamento`;
+        },
+        message: (d) => {
+            const labels = getLabels(d.segmento);
+            return `${d.nome} ainda não possui ${labels.sessao} marcada`;
+        },
         link: (d) => `/pacientes/${d.id}`,
         channels: ["app"]
     },
 
     CONSULTA_CRIADA: {
-        title: () => "Consulta agendada",
-        message: (d) =>
-            `Consulta agendada para ${d.nome} em ${d.data}`,
+        title: (d) => {
+            const labels = getLabels(d.segmento);
+            return `${labels.consulta} agendada`;
+        },
+        message: (d) => {
+            const labels = getLabels(d.segmento);
+            return `${labels.consulta} agendada para ${d.nome} em ${d.data}`;
+        },
+        link: () => "/agenda",
+        channels: ["app"]
+    },
+
+    SESSAO_PROXIMA: {
+        title: (d) => {
+            const labels = getLabels(d.segmento);
+            return `${labels.sessao} em breve`;
+        },
+        message: (d) => {
+            const labels = getLabels(d.segmento);
+            return `${labels.sessao} com ${d.nome} começa em 1 hora`;
+        },
         link: () => "/agenda",
         channels: ["app"]
     },
 
     CONSULTA_FINALIZADA: {
-        title: () => "Sessão finalizada",
-        message: (d) =>
-            `Sessão das ${d.hora} foi finalizada`,
+        title: (d) => {
+            const labels = getLabels(d.segmento);
+            return `${labels.sessao} finalizada`;
+        },
+        message: (d) => {
+            const labels = getLabels(d.segmento);
+            return `${labels.sessao} das ${d.hora} foi finalizada`;
+        },
         link: () => "/agenda",
         channels: ["app"]
     },
 
     CONSULTA_CANCELADA: {
-        title: () => "Consulta cancelada",
-        message: (d) =>
-            `Consulta das ${d.hora} foi cancelada`,
+        title: (d) => {
+            const labels = getLabels(d.segmento);
+            return `${labels.consulta} cancelada`;
+        },
+        message: (d) => {
+            const labels = getLabels(d.segmento);
+            return `${labels.consulta} das ${d.hora} foi cancelada`;
+        },
         link: () => "/agenda",
         channels: ["app"]
     },
 
     SESSOES_DO_DIA: {
-        title: () => "Sessões de hoje",
-        message: (d) =>
-            `Você possui ${d.total} sessões hoje`,
+        title: (d) => {
+            const labels = getLabels(d.segmento);
+            return `${labels.sessao}s de hoje`;
+        },
+        message: (d) => {
+            const labels = getLabels(d.segmento);
+            return `Você possui ${d.total} ${labels.sessao}s hoje`;
+        },
         link: () => "/agenda",
         channels: ["app"]
     },
 
     DIA_SEM_AGENDA: {
-        title: () => "Dia livre",
-        message: () =>
-            "Hoje você não possui sessões agendadas",
+        title: (d) => {
+            const labels = getLabels(d.segmento);
+            return "Dia livre";
+        },
+        message: (d) => {
+            const labels = getLabels(d.segmento);
+            return `Hoje você não possui ${labels.sessao}s agendadas`;
+        },
         link: () => "/agenda",
         channels: ["app"]
     }
 
-}
+};

@@ -1,14 +1,15 @@
 const { auth, db } = require("../config/firebase");
+const { incrementarUso } = require("../repositories/uso.repository");
 
 async function criarUsuario(req, res) {
     try {
+        const tenantId = req.tenantId;
         console.log("BODY RECEBIDO:", req.body);
         const {
             nome,
             email,
             senha,
             role,
-            tenantId,
             telefone = "",
             profissionalId = ""
         } = req.body;
@@ -36,6 +37,10 @@ async function criarUsuario(req, res) {
                 role,
                 createdAt: new Date()
             });
+
+        if (role !== "cliente") {
+            await incrementarUso(tenantId, "usuariosEquipe", 1);
+        }
 
         res.json({ ok: true });
 

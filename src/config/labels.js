@@ -1,10 +1,96 @@
 module.exports = {
     saude: {
+        pacientes: "Pacientes",
         paciente: "Paciente",
-        sessao: "sessão"
+        agenda: "Agenda",
+        sessoes: "Sessões",
+        sessao: "Sessão",
+        prontuario: "Prontuário",
+        documentos: "Documentos",
+        mural: "Mural",
+        financeiro: "Financeiro",
+        prescricoes: "Prescrições",
+        notificacoes: "Notificações",
+        observacoes: "Anamneses",
+        observacao: "Anamnese",
+        consulta: "Consulta",
     },
+
     profissionais: {
+        pacientes: "Clientes",
         paciente: "Cliente",
-        sessao: "atendimento"
+        agenda: "Agenda",
+        sessoes: "Atendimentos",
+        sessao: "Atendimento",
+        prontuario: "Caso",
+        documentos: "Documentos",
+        financeiro: "Financeiro",
+        prescricoes: "Modelos Jurídicos",
+        notificacoes: "Notificações",
+        observacoes: "Observações",
+        observacao: "Observação",
+        consulta: "agendamento",
+    },
+
+    estetica: {
+        pacientes: "Clientes",
+        paciente: "Cliente",
+        agenda: "Agenda",
+        sessoes: "Atendimentos",
+        sessao: "Atendimento",
+        prontuario: "Caso",
+        documentos: "Documentos",
+        financeiro: "Financeiro",
+        prescricoes: "Modelos Jurídicos",
+        notificacoes: "Notificações",
+        observacoes: "Observações",
+        observacao: "Observação",
+        consulta: "agendamento",
+    },
+
+    educacao: {
+        pacientes: "Clientes",
+        paciente: "Cliente",
+        agenda: "Agenda",
+        sessoes: "Atendimentos",
+        sessao: "Atendimento",
+        prontuario: "Caso",
+        documentos: "Documentos",
+        financeiro: "Financeiro",
+        prescricoes: "Modelos Jurídicos",
+        notificacoes: "Notificações",
+        consulta: "agendamento"
+    },
+
+    beleza: {
+        pacientes: "Clientes",
+        paciente: "Cliente",
+        agenda: "Agenda",
+        sessoes: "Atendimentos",
+        sessao: "Atendimento",
+        prontuario: "Caso",
+        documentos: "Documentos",
+        financeiro: "Financeiro",
+        prescricoes: "Modelos Jurídicos",
+        notificacoes: "Notificações",
+        observacoes: "Observações",
+        observacao: "Observação",
+        consulta: "agendamento"
+    },
+
+    criativo: {
+        pacientes: "Clientes",
+        paciente: "Cliente",
+        agenda: "Agenda",
+        sessoes: "Atendimentos",
+        sessao: "Atendimento",
+        prontuario: "Caso",
+        documentos: "Documentos",
+        financeiro: "Financeiro",
+        prescricoes: "Modelos Jurídicos",
+        notificacoes: "Notificações",
+        observacoes: "Observações",
+        observacao: "Observação",
+        consulta: "agendamento"
     }
 };

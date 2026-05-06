@@ -3,55 +3,41 @@ const templates = require("../config/notificationTemplates");
 const repo = require("../repositories/notificacoes.repository");
 
 async function jaExiste({ tenantId, userId, type }) {
+    if (!tenantId || !userId || !type) return false;
 
-    const lista = await repo.getNotificacoes(tenantId, userId)
+    const lista = await repo.getNotificacoes(tenantId, userId);
 
-    return lista.some(n => n.type === type)
+    return lista.some(n => n.type === type && !n.read);
 }
 
 async function notify({ tenantId, userId, type, data }) {
+    try {
+        const template = templates[type];
 
-    const template = templates[type]
+        if (!template) {
+            console.warn("Template não encontrado:", type);
+            return;
+        }
 
-    if (!template) {
-        console.warn("❌ [2] TEMPLATE NÃO ENCONTRADO:", type)
-        return
+        const title = template.title(data);
+        const message = template.message(data);
+        const link = template.link(data);
+        console.log("DATA ENVIADA:", data);
+
+        await notificacoesService.createNotificacao(
+            tenantId,
+            userId,
+            title,
+            message,
+            link,
+            type
+        );
+
+        console.log("Notificação criada com sucesso");
+
+    } catch (error) {
+        console.error("Erro ao disparar notificação:", error);
     }
-
-    const title = template.title(data)
-    const message = template.message(data)
-    const link = template.link(data)
-
-    console.log("🔵 [5] MONTADO:", { title, message, link })
-
-    await notificacoesService.createNotificacao(
-        tenantId,
-        userId,
-        title,
-        message,
-        link,
-        type
-    )
-    /*
-        console.log("✅ [6] SALVO NO FIRESTORE")
-    
-        if (template.channels?.includes("email")) {
-            console.log("📧 [7] ENVIANDO EMAIL")
-            await notificacoesService.enviarEmail({
-                email: data.email,
-                assunto: title,
-                mensagem: message
-            })
-        }
-    
-        if (template.channels?.includes("whatsapp")) {
-            console.log("📱 [8] ENVIANDO WHATSAPP")
-            await notificacoesService.enviarWhatsapp(
-                data.telefone,
-                message
-            )
-        }
-            */
 }
 
 module.exports = { notify }

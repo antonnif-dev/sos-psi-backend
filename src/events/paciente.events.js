@@ -8,6 +8,7 @@ const agendaRepository = require("../repositories/agenda.repository");
 const financeiroRepository = require("../repositories/financeiro.repository");
 
 async function pacienteCriado(tenantId, paciente) {
+    console.log("🔥 pacienteCriado disparado:", paciente.nome);
     if (!paciente.psicologoId) return;
 
     const tenant = await tenantService.buscarTenant(tenantId);
@@ -18,33 +19,39 @@ async function pacienteCriado(tenantId, paciente) {
         userId: paciente.psicologoId,
         type: "PACIENTE_CRIADO",
         data: {
-            nome: paciente.nome
+            nome: paciente.nome,
+            segmento: tenant.segmento
         }
     });
 }
 
-async function verificarPacientesSemSessao() {
-    const pacientes = await pacientesRepository.listar()
+async function verificarPacientesSemSessao(tenantId) {
+    const pacientes = await pacientesRepository.listar(tenantId);
 
     for (const paciente of pacientes) {
 
-        const consultas = await agendaRepository.listarPorPaciente(paciente.id)
+        if (!paciente.frequencia) continue;
 
-        if (!consultas.length) continue
+        const consultas = await agendaRepository.listarPorPaciente(
+            tenantId,
+            paciente.id
+        );
+
+        if (!consultas.length) continue;
 
         const ultima = consultas.sort(
             (a, b) => new Date(b.data) - new Date(a.data)
-        )[0]
+        )[0];
 
-        const dias = parseInt(paciente.frequencia)
+        const dias = parseInt(paciente.frequencia);
 
-        const limite = new Date(ultima.data)
-        limite.setDate(limite.getDate() + dias)
+        const limite = new Date(ultima.data);
+        limite.setDate(limite.getDate() + dias);
 
         if (new Date() > limite) {
 
             await notify({
-                tenantId: paciente.tenantId,
+                tenantId,
                 userId: paciente.psicologoId,
                 type: "PACIENTE_SEM_SESSAO",
                 data: {
@@ -52,30 +59,33 @@ async function verificarPacientesSemSessao() {
                     dias,
                     id: paciente.id
                 }
-            })
+            });
 
         }
     }
 }
 
-async function verificarPacientesSemSessaoMarcada() {
-    const pacientes = await pacientesRepository.listar()
+async function verificarPacientesSemSessaoMarcada(tenantId) {
+    const pacientes = await pacientesRepository.listar(tenantId);
 
     for (const paciente of pacientes) {
 
-        const consultas = await agendaRepository.listarPorPaciente(paciente.id)
+        const consultas = await agendaRepository.listarPorPaciente(
+            tenantId,
+            paciente.id
+        );
 
         if (consultas.length === 0) {
 
             await notify({
-                tenantId: paciente.tenantId,
+                tenantId,
                 userId: paciente.psicologoId,
                 type: "PACIENTE_SEM_SESSAO_MARCADA",
                 data: {
                     nome: paciente.nome,
                     id: paciente.id
                 }
-            })
+            });
 
         }
     }

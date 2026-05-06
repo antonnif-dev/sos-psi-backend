@@ -16,6 +16,21 @@ async function criarPaciente(tenantId, data) {
     return id;
 }
 
+async function listar(tenantId) {
+    if (!tenantId) return [];
+
+    const snapshot = await db
+        .collection("tenants")
+        .doc(tenantId)
+        .collection("pacientes")
+        .get();
+
+    return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }));
+}
+
 async function listarPacientes(tenantId) {
     const snapshot = await db
         .collection("tenants")
@@ -69,6 +84,7 @@ async function buscarPorId(tenantId, id) {
 
 module.exports = {
     criarPaciente,
+    listar,
     listarPacientes,
     editarPaciente,
     deletarPaciente,

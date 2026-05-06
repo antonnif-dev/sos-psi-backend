@@ -2,6 +2,8 @@ const notificacoesService = require("../services/notificacoes.service");
 const agendaNotificacaoService = require("../services/agendaNotificacao.service");
 const { formatDateTimeBR, formatTimeBR } = require("../utils/dateUtils");
 const { notify } = require("../services/notificationEngine.service");
+const financeiroRepo = require("../repositories/financeiro.repository");
+const agendaRepository = require("../repositories/agenda.repository");
 
 async function consultaCriada(tenantId, consulta) {
 
@@ -13,7 +15,8 @@ async function consultaCriada(tenantId, consulta) {
         type: "CONSULTA_CRIADA",
         data: {
             nome: consulta.pacienteNome,
-            data: formatDateTimeBR(consulta.data)
+            data: formatDateTimeBR(consulta.data),
+            segmento: tenant.segmento
         }
     })
 }
@@ -26,7 +29,8 @@ async function consultaFinalizada(tenantId, consulta) {
         userId: consulta.psicologoId,
         type: "CONSULTA_FINALIZADA",
         data: {
-            hora: formatTimeBR(consulta.data)
+            hora: formatTimeBR(consulta.data),
+            segmento: tenant.segmento
         }
     })
 
@@ -55,76 +59,76 @@ async function consultaCancelada(tenantId, consulta) {
         userId: consulta.psicologoId,
         type: "CONSULTA_CANCELADA",
         data: {
-            hora: formatTimeBR(consulta.data)
+            hora: formatTimeBR(consulta.data),
+            segmento: tenant.segmento
         }
     })
 }
 
-async function sessaoCriada(sessao) {
+async function sessaoCriada(tenantId, sessao) {
+
+    if (!sessao.psicologoId) return;
+
+    await notify({
+        tenantId,
+        userId: sessao.psicologoId,
+        type: "CONSULTA_CRIADA",
+        data: {
+            nome: sessao.pacienteNome,
+            data: formatDateTimeBR(sessao.data)
+        }
+    });
+
     await agendaNotificacaoService.notificarCriacaoSessao(sessao);
 }
 
-async function verificarSessoesDoDia() {
-    const hoje = new Date().toISOString().split("T")[0]
-    const consultas = await agendaRepository.listar()
-    const consultasHoje = consultas.filter(c =>
-        c.data.startsWith(hoje)
-    )
-    if (!consultasHoje.length) return
+async function verificarSessoesDoDia(tenantId) {
 
-    const consulta = consultasHoje[0]
-    await notificacoesService.createNotificacao(
-        consulta.tenantId,
-        consulta.psicologoId,
-        "Sessões de hoje",
-        `Você possui ${consultasHoje.length} sessões hoje`,
-        "/agenda",
-        "sessoes_do_dia"
-    )
-}
+    const hoje = new Date().toISOString().split("T")[0];
 
-async function verificarSessoesDoDia() {
-
-    const hoje = new Date().toISOString().split("T")[0]
-    const consultas = await agendaRepository.listar()
+    const consultas = await agendaRepository.listarConsultas(tenantId);
 
     const hojeConsultas = consultas.filter(c =>
         c.data.startsWith(hoje)
-    )
+    );
 
-    if (!hojeConsultas.length) return
+    if (!hojeConsultas.length) return;
 
-    const c = hojeConsultas[0]
+    const c = hojeConsultas[0];
 
     await notify({
-        tenantId: c.tenantId,
+        tenantId,
         userId: c.psicologoId,
         type: "SESSOES_DO_DIA",
         data: {
-            total: hojeConsultas.length
+            total: hojeConsultas.length,
+            segmento: tenant.segmento
         }
-    })
+    });
 }
 
-async function verificarDiaSemAgenda() {
+async function verificarDiaSemAgenda(tenantId) {
 
-    const hoje = new Date().toISOString().split("T")[0]
-    const consultas = await agendaRepository.listar()
+    const hoje = new Date().toISOString().split("T")[0];
+
+    const consultas = await agendaRepository.listarConsultas(tenantId);
 
     const hojeConsultas = consultas.filter(c =>
         c.data.startsWith(hoje)
-    )
+    );
 
     if (hojeConsultas.length === 0 && consultas.length > 0) {
 
-        const c = consultas[0]
+        const c = consultas[0];
 
         await notify({
-            tenantId: c.tenantId,
+            tenantId,
             userId: c.psicologoId,
             type: "DIA_SEM_AGENDA",
-            data: {}
-        })
+            data: {
+                segmento: tenant.segmento
+            }
+        });
     }
 }
 

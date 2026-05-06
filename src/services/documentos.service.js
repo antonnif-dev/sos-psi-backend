@@ -13,9 +13,12 @@ async function criarDocumento(tenantId, file) {
         `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
         { folder: "documentos" }
     );
+    const tamanhoMb = file.size / (1024 * 1024);
+
     const data = {
         nome: file.originalname,
-        url: upload.secure_url
+        url: upload.secure_url,
+        tamanhoMb
     };
     return repo.criarDocumento(tenantId, data);
 }
@@ -24,8 +27,13 @@ async function deletarDocumento(tenantId, id) {
     await repo.deletarDocumento(tenantId, id);
 }
 
+async function buscarPorId(tenantId, id) {
+    return repo.buscarPorId(tenantId, id);
+}
+
 module.exports = {
     listarDocumentos,
     criarDocumento,
-    deletarDocumento
+    deletarDocumento,
+    buscarPorId
 };

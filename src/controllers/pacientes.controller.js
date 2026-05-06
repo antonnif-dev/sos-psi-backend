@@ -1,27 +1,33 @@
 const service = require("../services/pacientes.service");
+const { incrementarUso, buscarUsoMesAtual } = require("../repositories/uso.repository");
 
 async function criarPaciente(req, res) {
-
+    console.log("CRIANDO PACIENTE PARA TENANT:", req.tenantId);
     try {
         const id = await service.criarPaciente(
             req.tenantId,
             req.body,
             req.user?.uid
         );
+        console.log("PACIENTE CRIADO, ID:", id);
+        console.log("INCREMENTANDO USO DE PACIENTES +1");        
+        await incrementarUso(req.tenantId, "pacientes", 1);
+        console.log("USO INCREMENTADO COM SUCESSO");        
 
-        res.json({ id });
+        const usoDepois = await buscarUsoMesAtual(req.tenantId);
+        console.log("🔥 USO APÓS INCREMENTO:", usoDepois);
+
+        return res.status(201).json({ sucesso: true, id });
+
     } catch (error) {
         console.error("ERRO CRIAR PACIENTE:", error);
-        res.status(400).json({ error: error.message });
+        return res.status(400).json({ error: error.message });
     }
 }
 
 async function listarPacientes(req, res) {
-    console.log("CHEGOU NO CONTROLLER");
     const pacientes = await service.listarPacientes(req.tenantId);
-    console.log("PACIENTES:", pacientes);
-    res.json(pacientes);
-    console.log("REQ.TENANT NO CONTROLLER:", req.tenantId);
+    return res.json(pacientes);
 }
 
 async function editarPaciente(req, res) {

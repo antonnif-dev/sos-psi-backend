@@ -1,11 +1,11 @@
 const pacientesRepository = require("../repositories/pacientes.repository");
 const agendaRepository = require("../repositories/agenda.repository");
 const notificacoesService = require("./notificacoes.service");
-//const usuariosRepo = require("../repositories/usuarios.repository");
+const usuariosRepo = require("../repositories/user.repository");
 
 async function notificarCriacaoSessao(sessao) {
     const paciente = await pacientesRepository.buscarPorId(sessao.tenantId, sessao.pacienteId);
-    const psicologo = await usuariosRepo.buscarPorUid(sessao.psicologoId);
+    const psicologo = await usuariosRepo.buscarPorUid(sessao.tenantId, sessao.psicologoId);
 
     const mensagem = `
 Nova sessão agendada
@@ -39,14 +39,14 @@ Horário: ${sessao.horario}
     await notificacoesService.enviarEmail({
         email: psicologo.email,
         assunto: "Nova sessão agendada",
-        mensagem: `Sessão com ${paciente.nome} em ${sessao.data}`
+        mensagem: `Sessão agendada para ${paciente.nome} em ${sessao.data}`
     });
-
-    await notificacoesService.enviarEmail({
-        email: paciente.email,
-        assunto: "Lembrete de sessão",
-        mensagem: mensagem
-    });
+    /*
+        await notificacoesService.enviarEmail({
+            email: paciente.email,
+            assunto: "Lembrete de sessão",
+            mensagem: mensagem
+        });*/
 }
 
 async function enviarLembretes() {
@@ -55,24 +55,26 @@ async function enviarLembretes() {
     const sessoes = await agendaRepository.buscarSessoesFuturas();
 
     for (const sessao of sessoes) {
-        const dataSessao = new Date(sessao.dataHora);
+        //const dataSessao = new Date(sessao.dataHora);
+        const dataSessao = new Date(sessao.data);
 
         const diff = dataSessao - agora;
 
-        const horas = diff / (1000 * 60 * 60);
-
-        if (horas <= 24 && horas > 23.9) {
+        //const horas = diff / (1000 * 60 * 60);
+        const horas = Math.floor(diff / (1000 * 60 * 60));
+        if (!sessao.data) continue;
+        if (horas <= 24 && horas > 23.5) {
             await enviarLembrete(sessao, "24h");
         }
 
-        if (horas <= 1 && horas > 0.9) {
+        if (horas <= 1 && horas > 0.5) {
             await enviarLembrete(sessao, "1h");
         }
     }
 }
 
 async function enviarLembrete(sessao, tipo) {
-    const paciente = await pacientesRepository.buscarPorId(sessao.pacienteId);
+    const paciente = await pacientesRepository.buscarPorId(sessao.tenantId, sessao.pacienteId);
 
     const mensagem =
         tipo === "24h"

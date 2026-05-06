@@ -44,6 +44,7 @@ async function criarConsulta(tenantId, data, psicologoId) {
 }
 
 async function listarConsultas(tenantId) {
+    if (!tenantId) return [];
     const consultas = await repo.listarConsultas(tenantId);
     const agora = new Date();
 
@@ -69,6 +70,7 @@ async function listarConsultas(tenantId) {
 
     return consultas;
 }
+
 async function editarConsulta(tenantId, id, data) {
 
     if (!id) {
@@ -101,10 +103,15 @@ async function listarRealizadas(tenantId) {
     return await repo.listarRealizadas(tenantId);
 }
 
+async function buscarPorId(tenantId, id) {
+    return await repo.buscarPorId(tenantId, id);
+}
+
 module.exports = {
     criarConsulta,
     listarConsultas,
     editarConsulta,
     deletarConsulta,
-    listarRealizadas
+    listarRealizadas,
+    buscarPorId
 };
