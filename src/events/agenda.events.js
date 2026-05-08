@@ -1,13 +1,14 @@
 const notificacoesService = require("../services/notificacoes.service");
-const agendaNotificacaoService = require("../services/agendaNotificacao.service");
-const { formatDateTimeBR, formatTimeBR } = require("../utils/dateUtils");
 const { notify } = require("../services/notificationEngine.service");
+const agendaNotificacaoService = require("../services/agendaNotificacao.service");
+const tenantService = require("../services/tenant.service");
 const financeiroRepo = require("../repositories/financeiro.repository");
 const agendaRepository = require("../repositories/agenda.repository");
+const { formatDateTimeBR, formatTimeBR } = require("../utils/dateUtils");
 
 async function consultaCriada(tenantId, consulta) {
-
-    if (!consulta.psicologoId) return
+    const tenant = await tenantService.buscarTenant(tenantId);
+    if (!consulta.psicologoId) return;
 
     await notify({
         tenantId,
@@ -22,7 +23,8 @@ async function consultaCriada(tenantId, consulta) {
 }
 
 async function consultaFinalizada(tenantId, consulta) {
-    if (!consulta.psicologoId) return
+    if (!consulta.psicologoId) return;
+    const tenant = await tenantService.buscarTenant(tenantId);
 
     await notify({
         tenantId,
@@ -52,7 +54,8 @@ async function consultaFinalizada(tenantId, consulta) {
 }
 
 async function consultaCancelada(tenantId, consulta) {
-    if (!consulta.psicologoId) return
+    if (!consulta.psicologoId) return;
+    const tenant = await tenantService.buscarTenant(tenantId);
 
     await notify({
         tenantId,
@@ -68,6 +71,7 @@ async function consultaCancelada(tenantId, consulta) {
 async function sessaoCriada(tenantId, sessao) {
 
     if (!sessao.psicologoId) return;
+    const tenant = await tenantService.buscarTenant(tenantId);
 
     await notify({
         tenantId,
@@ -75,7 +79,8 @@ async function sessaoCriada(tenantId, sessao) {
         type: "CONSULTA_CRIADA",
         data: {
             nome: sessao.pacienteNome,
-            data: formatDateTimeBR(sessao.data)
+            data: formatDateTimeBR(sessao.data),
+            segmento: tenant.segmento
         }
     });
 
@@ -84,17 +89,59 @@ async function sessaoCriada(tenantId, sessao) {
 
 async function verificarSessoesDoDia(tenantId) {
 
+    console.log("\n==============================");
+    console.log("🔔 verificarSessoesDoDia");
+    console.log("TENANT:", tenantId);
+
     const hoje = new Date().toISOString().split("T")[0];
+
+    console.log("DATA HOJE:", hoje);
 
     const consultas = await agendaRepository.listarConsultas(tenantId);
 
-    const hojeConsultas = consultas.filter(c =>
-        c.data.startsWith(hoje)
-    );
+    console.log("CONSULTAS ENCONTRADAS:", consultas.length);
 
-    if (!hojeConsultas.length) return;
+    consultas.forEach((c, i) => {
+        console.log(`CONSULTA ${i + 1}:`, {
+            id: c.id,
+            data: c.data,
+            psicologoId: c.psicologoId,
+            pacienteNome: c.pacienteNome
+        });
+    });
+
+    const hojeConsultas = consultas.filter(c => {
+
+        console.log("VALIDANDO DATA:", c.data);
+
+        if (!c.data) return false;
+
+        const dataConsulta =
+            c.data.toDate
+                ? c.data.toDate().toISOString().split("T")[0]
+                : new Date(c.data).toISOString().split("T")[0];
+
+        console.log("DATA FORMATADA:", dataConsulta);
+
+        return dataConsulta === hoje;
+    });
+
+    console.log("CONSULTAS DE HOJE:", hojeConsultas.length);
+
+    if (!hojeConsultas.length) {
+        console.log("❌ Nenhuma consulta hoje");
+        return;
+    }
 
     const c = hojeConsultas[0];
+
+    console.log("CONSULTA ESCOLHIDA:", c);
+
+    const tenant = await tenantService.buscarTenant(tenantId);
+
+    console.log("TENANT ENCONTRADO:", tenant);
+
+    console.log("ENVIANDO NOTIFICAÇÃO...");
 
     await notify({
         tenantId,
@@ -105,6 +152,8 @@ async function verificarSessoesDoDia(tenantId) {
             segmento: tenant.segmento
         }
     });
+
+    console.log("✅ NOTIFICAÇÃO ENVIADA");
 }
 
 async function verificarDiaSemAgenda(tenantId) {
@@ -120,6 +169,7 @@ async function verificarDiaSemAgenda(tenantId) {
     if (hojeConsultas.length === 0 && consultas.length > 0) {
 
         const c = consultas[0];
+        const tenant = await tenantService.buscarTenant(tenantId);
 
         await notify({
             tenantId,

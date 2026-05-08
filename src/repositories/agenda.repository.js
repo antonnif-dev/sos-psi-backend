@@ -67,6 +67,74 @@ async function listarConsultas(tenantId) {
 
 }
 
+async function listarConsultasPorPsicologo(
+  tenantId,
+  psicologoId
+) {
+
+  try {
+
+    console.log("📅 [REPOSITORY] Buscando consultas do psicólogo");
+    console.log("🏢 Tenant:", tenantId);
+    console.log("🧑 Psicólogo:", psicologoId);
+
+    const snapshot = await db
+      .collection("tenants")
+      .doc(tenantId)
+      .collection("agenda")
+      .where("psicologoId", "==", psicologoId)
+      .get();
+
+    console.log("📄 Documentos encontrados:", snapshot.size);
+
+    const consultas = snapshot.docs.map(doc => {
+
+      const data = doc.data();
+
+      function converter(valor) {
+
+        if (!valor) return null;
+
+        if (valor.toDate) {
+          return valor.toDate().toISOString();
+        }
+
+        if (typeof valor === "number") {
+          return new Date(valor).toISOString();
+        }
+
+        if (typeof valor === "string") {
+          return new Date(valor).toISOString();
+        }
+
+        return valor;
+
+      }
+
+      return {
+        id: doc.id,
+        ...data,
+        data: converter(data.data),
+        createdAt: converter(data.createdAt),
+        updatedAt: converter(data.updatedAt)
+      };
+
+    });
+
+    console.log("✅ Consultas convertidas:", consultas.length);
+
+    return consultas;
+
+  } catch (error) {
+
+    console.error("❌ Erro ao listar consultas do psicólogo:", error);
+
+    return [];
+
+  }
+
+}
+
 async function editarConsulta(tenantId, id, data) {
   const { Timestamp } = require("firebase-admin/firestore");
   await db
@@ -159,6 +227,64 @@ async function buscarPorId(tenantId, id) {
   return doc.exists ? doc.data() : null;
 }
 
+async function consultaPertenceAoPsicologo(
+  tenantId,
+  consultaId,
+  psicologoId
+) {
+
+  try {
+
+    console.log("🔒 Verificando ownership da consulta");
+
+    console.log("🏢 Tenant:", tenantId);
+
+    console.log("📄 Consulta:", consultaId);
+
+    console.log("🧑 Psicólogo:", psicologoId);
+
+    const doc = await db
+      .collection("tenants")
+      .doc(tenantId)
+      .collection("agenda")
+      .doc(consultaId)
+      .get();
+
+    if (!doc.exists) {
+
+      console.log("❌ Consulta não encontrada");
+
+      return false;
+
+    }
+
+    const consulta = doc.data();
+
+    console.log("📋 Consulta encontrada:", {
+      psicologoId: consulta.psicologoId,
+      status: consulta.status
+    });
+
+    const pertence =
+      consulta.psicologoId === psicologoId;
+
+    console.log("✅ Ownership:", pertence);
+
+    return pertence;
+
+  } catch (error) {
+
+    console.error(
+      "❌ Erro ao validar ownership:",
+      error
+    );
+
+    return false;
+
+  }
+
+}
+
 async function listarPorPaciente(tenantId, pacienteId) {
   if (!tenantId || !pacienteId) return [];
 
@@ -175,13 +301,183 @@ async function listarPorPaciente(tenantId, pacienteId) {
   }));
 }
 
+async function listarConsultasPorPeriodo(
+  tenantId,
+  startDate,
+  endDate
+) {
+
+  try {
+
+    console.log("📅 [REPOSITORY] Buscando consultas por período");
+
+    console.log("🏢 Tenant:", tenantId);
+
+    console.log("📆 Início:", startDate);
+
+    console.log("📆 Fim:", endDate);
+
+    const inicio = new Date(startDate);
+
+    const fim = new Date(endDate);
+
+    const snapshot = await db
+      .collection("tenants")
+      .doc(tenantId)
+      .collection("agenda")
+      .where("data", ">=", inicio)
+      .where("data", "<=", fim)
+      .get();
+
+    console.log("📄 Documentos encontrados:", snapshot.size);
+
+    const consultas = snapshot.docs.map(doc => {
+
+      const data = doc.data();
+
+      function converter(valor) {
+
+        if (!valor) return null;
+
+        if (valor.toDate) {
+          return valor.toDate().toISOString();
+        }
+
+        if (typeof valor === "number") {
+          return new Date(valor).toISOString();
+        }
+
+        if (typeof valor === "string") {
+          return new Date(valor).toISOString();
+        }
+
+        return valor;
+
+      }
+
+      return {
+        id: doc.id,
+        ...data,
+        data: converter(data.data),
+        createdAt: converter(data.createdAt),
+        updatedAt: converter(data.updatedAt)
+      };
+
+    });
+
+    console.log("✅ Consultas convertidas:", consultas.length);
+
+    return consultas;
+
+  } catch (error) {
+
+    console.error(
+      "❌ Erro ao buscar consultas por período:",
+      error
+    );
+
+    return [];
+
+  }
+
+}
+
+async function listarConsultasPorPsicologoEPeriodo(
+  tenantId,
+  psicologoId,
+  startDate,
+  endDate
+) {
+
+  try {
+
+    console.log("📅 [REPOSITORY] Buscando consultas do psicólogo por período");
+
+    console.log("🏢 Tenant:", tenantId);
+
+    console.log("🧑 Psicólogo:", psicologoId);
+
+    console.log("📆 Início:", startDate);
+
+    console.log("📆 Fim:", endDate);
+
+    const inicio = new Date(startDate);
+
+    const fim = new Date(endDate);
+
+    const snapshot = await db
+      .collection("tenants")
+      .doc(tenantId)
+      .collection("agenda")
+      .where("psicologoId", "==", psicologoId)
+      .where("data", ">=", inicio)
+      .where("data", "<=", fim)
+      .get();
+
+    console.log("📄 Documentos encontrados:", snapshot.size);
+
+    const consultas = snapshot.docs.map(doc => {
+
+      const data = doc.data();
+
+      function converter(valor) {
+
+        if (!valor) return null;
+
+        if (valor.toDate) {
+          return valor.toDate().toISOString();
+        }
+
+        if (typeof valor === "number") {
+          return new Date(valor).toISOString();
+        }
+
+        if (typeof valor === "string") {
+          return new Date(valor).toISOString();
+        }
+
+        return valor;
+
+      }
+
+      return {
+        id: doc.id,
+        ...data,
+        data: converter(data.data),
+        createdAt: converter(data.createdAt),
+        updatedAt: converter(data.updatedAt)
+      };
+
+    });
+
+    console.log("✅ Consultas convertidas:", consultas.length);
+
+    return consultas;
+
+  } catch (error) {
+
+    console.error(
+      "❌ Erro ao buscar consultas do psicólogo por período:",
+      error
+    );
+
+    return [];
+
+  }
+
+}
+
 module.exports = {
   criarConsulta,
   listarConsultas,
+  listarConsultasPorPsicologo,
   editarConsulta,
   deletarConsulta,
   listarRealizadas,
   buscarSessoesFuturas,
   buscarPorId,
-  listarPorPaciente
+  consultaPertenceAoPsicologo,
+  listarPorPaciente,
+  listarConsultasPorPeriodo,
+  listarConsultasPorPsicologoEPeriodo,
 };

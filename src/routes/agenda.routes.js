@@ -43,6 +43,12 @@ router.put(
     controller.editarConsulta
 );*/
 
-router.delete("/:id", auth, tenant, role(["admin"]), controller.deletarConsulta);
+router.delete(
+    "/:id",
+    auth,
+    tenant,
+    role(["admin", "psicologo"]),
+    controller.deletarConsulta
+);
 
 module.exports = router;

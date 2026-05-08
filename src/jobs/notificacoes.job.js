@@ -65,6 +65,8 @@ const {
 } = require("../events/paciente.events");
 
 cron.schedule("0 6 * * *", async () => {
+    console.log("⏰ CRON DAS 6H DISPAROU");
+
     const tenantsSnap = await db.collection("tenants").get();
 
     for (const tenantDoc of tenantsSnap.docs) {

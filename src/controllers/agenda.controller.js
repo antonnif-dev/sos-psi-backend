@@ -21,21 +21,94 @@ async function criarConsulta(req, res) {
 }
 
 async function listarConsultas(req, res) {
-    const consultas = await service.listarConsultas(req.tenantId);
-    res.json(consultas);
+
+    try {
+
+        console.log("📥 =============================");
+        console.log("📥 REQUEST LISTAR CONSULTAS");
+        console.log("📥 =============================");
+
+        console.log("👤 req.user:", req.user);
+
+        console.log("🏢 req.tenantId:", req.tenantId);
+
+        console.log("🎭 req.role:", req.role);
+
+        const consultas =
+            await service.listarConsultas(
+                req.tenantId,
+                {
+                    ...req.user,
+                    role: req.role
+                },
+                {
+                    startDate: req.query.startDate,
+                    endDate: req.query.endDate
+                }
+            );
+
+        console.log("📤 Consultas retornadas:", consultas.length);
+
+        res.json(consultas);
+
+    } catch (error) {
+
+        console.error("❌ Erro ao listar consultas:", error);
+
+        res.status(500).json({
+            error: error.message
+        });
+
+    }
+
 }
 
 async function editarConsulta(req, res) {
+
     try {
+
+        console.log("✏️ =============================");
+        console.log("✏️ EDITAR CONSULTA");
+        console.log("✏️ =============================");
+
+        console.log("👤 Usuário:", {
+            uid: req.user?.uid,
+            role: req.role
+        });
+
+        console.log("📄 Consulta ID:", req.params.id);
+
+        console.log("📦 Payload:", req.body);
+
         await service.editarConsulta(
             req.tenantId,
             req.params.id,
-            req.body
+            req.body,
+            {
+                uid: req.user.uid,
+                role: req.role
+            }
         );
-        res.json({ success: true });
+
+        console.log("✅ Consulta editada com sucesso");
+
+        res.json({
+            success: true
+        });
+
     } catch (error) {
-        res.status(400).json({ error: error.message });
+
+        console.error(
+            "❌ Erro ao editar consulta:",
+            error
+        );
+
+        res.status(400).json({
+            error: error.message
+        });
+
     }
+
 }
 
 /* rota onde ganhar status realizada ganha +1 no contador
@@ -75,15 +148,48 @@ async function editarConsulta(req, res) {
 }*/
 
 async function deletarConsulta(req, res) {
+
     try {
+
+        console.log("🗑️ =============================");
+        console.log("🗑️ DELETAR CONSULTA");
+        console.log("🗑️ =============================");
+
+        console.log("👤 Usuário:", {
+            uid: req.user?.uid,
+            role: req.role
+        });
+
+        console.log("📄 Consulta:", req.params.id);
+
         await service.deletarConsulta(
             req.tenantId,
-            req.params.id
+            req.params.id,
+            {
+                uid: req.user.uid,
+                role: req.role
+            }
         );
-        res.json({ success: true });
+
+        console.log("✅ Consulta deletada");
+
+        res.json({
+            success: true
+        });
+
     } catch (error) {
-        res.status(400).json({ error: error.message });
+
+        console.error(
+            "❌ Erro ao deletar:",
+            error
+        );
+
+        res.status(400).json({
+            error: error.message
+        });
+
     }
+
 }
 
 async function listarRealizadas(req, res) {
