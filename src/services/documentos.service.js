@@ -5,18 +5,18 @@ async function listarDocumentos(tenantId) {
     return repo.listarDocumentos(tenantId);
 }
 
-async function criarDocumento(tenantId, file) {
-    if (!file) {
+async function criarDocumento(tenantId, documento) {
+    if (!documento) {
         throw new Error("Arquivo obrigatório");
     }
     const upload = await cloudinary.uploader.upload(
-        `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+        `data:${documento.mimetype};base64,${documento.buffer.toString("base64")}`,
         { folder: "documentos" }
     );
-    const tamanhoMb = file.size / (1024 * 1024);
+    const tamanhoMb = documento.size / (1024 * 1024);
 
     const data = {
-        nome: file.originalname,
+        nome: documento.originalname,
         url: upload.secure_url,
         tamanhoMb
     };

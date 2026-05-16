@@ -10,9 +10,9 @@ async function criarPaciente(req, res) {
             req.user?.uid
         );
         console.log("PACIENTE CRIADO, ID:", id);
-        console.log("INCREMENTANDO USO DE PACIENTES +1");        
+        console.log("INCREMENTANDO USO DE PACIENTES +1");
         await incrementarUso(req.tenantId, "pacientes", 1);
-        console.log("USO INCREMENTADO COM SUCESSO");        
+        console.log("USO INCREMENTADO COM SUCESSO");
 
         const usoDepois = await buscarUsoMesAtual(req.tenantId);
         console.log("🔥 USO APÓS INCREMENTO:", usoDepois);
@@ -44,6 +44,34 @@ async function editarPaciente(req, res) {
     }
 }
 
+async function alterarPsicologo(req, res) {
+
+    try {
+
+        const pacienteId = req.params.id;
+        const { psicologoId } = req.body;
+
+        await service.alterarPsicologo(
+            req.tenantId,
+            pacienteId,
+            psicologoId
+        );
+
+        return res.json({
+            success: true
+        });
+
+    } catch (error) {
+
+        console.error("ERRO ALTERAR PSICOLOGO:");
+        console.error(error);
+
+        return res.status(400).json({
+            error: error.message
+        });
+    }
+}
+
 async function deletarPaciente(req, res) {
     try {
         await service.deletarPaciente(
@@ -61,5 +89,6 @@ module.exports = {
     criarPaciente,
     listarPacientes,
     editarPaciente,
+    alterarPsicologo,
     deletarPaciente
 };

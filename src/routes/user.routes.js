@@ -7,7 +7,7 @@ const tenant = require("../middlewares/tenant.middleware");
 const { carregarUso } = require("../middlewares/carregarUso.middleware");
 const { verificarLimite } = require("../middlewares/verificarLimite.middleware");
 
-const { criarUsuario } = require("../controllers/user.controller");
+const { criarUsuario, listarUsuarios } = require("../controllers/user.controller");
 
 //router.post("/users", role(["admin"]), criarUsuario);
 
@@ -19,6 +19,14 @@ router.post(
     carregarUso,
     verificarLimite("usuariosEquipe"),
     criarUsuario
+);
+console.log("REGISTRANDO ROTA GET /users");
+router.get(
+    "/users",
+    auth,
+    tenant,
+    role(["admin", "psicologo", "secretaria"]),
+    listarUsuarios
 );
 
 module.exports = router;

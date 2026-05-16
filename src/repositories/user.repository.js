@@ -16,6 +16,21 @@ async function buscarPorUid(tenantId, uid) {
     };
 }
 
+async function listarUsuarios(tenantId) {
+
+    const snapshot = await db
+        .collection("tenants")
+        .doc(tenantId)
+        .collection("usuarios")
+        .get();
+
+    return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }));
+}
+
 module.exports = {
-    buscarPorUid
+    buscarPorUid,
+    listarUsuarios
 };

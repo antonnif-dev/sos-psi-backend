@@ -319,7 +319,11 @@ async function listarConsultasPorPeriodo(
 
     const inicio = new Date(startDate);
 
+    inicio.setHours(0, 0, 0, 0);
+
     const fim = new Date(endDate);
+
+    fim.setHours(23, 59, 59, 999);
 
     const snapshot = await db
       .collection("tenants")

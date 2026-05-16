@@ -82,11 +82,28 @@ async function buscarPorId(tenantId, id) {
     };
 }
 
+async function alterarPsicologo(
+    tenantId,
+    pacienteId,
+    psicologoId
+) {
+
+    await db
+        .collection("tenants")
+        .doc(tenantId)
+        .collection("pacientes")
+        .doc(pacienteId)
+        .update({
+            psicologoId
+        });
+}
+
 module.exports = {
     criarPaciente,
     listar,
     listarPacientes,
     editarPaciente,
     deletarPaciente,
-    buscarPorId
+    buscarPorId,
+    alterarPsicologo,
 };

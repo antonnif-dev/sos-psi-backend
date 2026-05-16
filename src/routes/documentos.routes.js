@@ -3,6 +3,7 @@ const controller = require("../controllers/documentos.controller");
 const auth = require("../middlewares/auth.middleware");
 const tenant = require("../middlewares/tenant.middleware");
 const upload = require("../middlewares/upload.middleware");
+const { uploadDocumento } = require("../controllers/documentos.controller");
 const role = require("../middlewares/role.middleware");
 
 const router = express.Router();
@@ -37,6 +38,12 @@ router.post(
     return verificarLimite("uploadMbMesAtual", tamanhoMb)(req, res, next);
   },
   controller.criarDocumento
+);
+
+router.post(
+  "/upload",
+  upload.single("arquivo"),
+  uploadDocumento
 );
 
 router.delete(

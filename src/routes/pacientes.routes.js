@@ -36,6 +36,14 @@ router.put(
     controller.editarPaciente
 );
 
+router.put(
+    "/:id/psicologo",
+    auth,
+    tenant,
+    role(["admin", "psicologo", "secretaria"]),
+    controller.alterarPsicologo
+);
+
 router.delete(
     "/:id",
     auth,

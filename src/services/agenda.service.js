@@ -17,8 +17,16 @@ async function criarConsulta(tenantId, data, psicologoId) {
     const novaData = new Date(data.data).getTime();
 
     const conflito = consultas.find(c => {
-        const existente = new Date(c.data).getTime();
-        return existente === novaData;
+
+        const existente =
+            new Date(c.data).getTime();
+
+        return (
+            existente === novaData
+            &&
+            c.psicologoId === psicologoId
+        );
+
     });
 
     if (conflito) {
@@ -32,7 +40,7 @@ async function criarConsulta(tenantId, data, psicologoId) {
 
     data.pacienteNome = paciente.nome;
     data.status = "agendada";
-    data.psicologoId = psicologoId;    
+    data.psicologoId = psicologoId;
 
     const psicologo =
         await usuariosRepo.buscarPorUid(

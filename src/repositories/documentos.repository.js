@@ -11,7 +11,7 @@ async function criarDocumento(tenantId, data) {
     .set({
       id,
       ...data,
-      createdAt: new Date()
+      createdAt: data.criadoEm || new Date()
     });
   return id;
 }

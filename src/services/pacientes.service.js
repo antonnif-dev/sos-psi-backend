@@ -1,6 +1,7 @@
 const repo = require("../repositories/pacientes.repository");
 const pacienteEvents = require("../events/paciente.events");
 const { db } = require("../config/firebase");
+const repository = require("../repositories/pacientes.repository");
 
 async function criarPaciente(tenantId, data, userId) {
     if (!data.nome) {
@@ -30,6 +31,19 @@ async function editarPaciente(tenantId, id, data) {
     await repo.editarPaciente(tenantId, id, data);
 }
 
+async function alterarPsicologo(
+    tenantId,
+    pacienteId,
+    psicologoId
+) {
+
+    await repository.alterarPsicologo(
+        tenantId,
+        pacienteId,
+        psicologoId
+    );
+}
+
 async function deletarPaciente(tenantId, id) {
     if (!id) {
         throw new Error("Paciente inválido");
@@ -41,5 +55,6 @@ module.exports = {
     criarPaciente,
     listarPacientes,
     editarPaciente,
+    alterarPsicologo,
     deletarPaciente
 };
