@@ -15,6 +15,8 @@ const medicamentosRoutes = require("./routes/medicamentos.routes");
 const prescricoesRoutes = require("./routes/prescricoes.routes");
 const notificacoesRoutes = require("./routes/notificacoes.routes");
 const userRoutes = require("./routes/user.routes");
+const prazoRoutes = require("./routes/prazo.routes");
+const processosRoutes = require("./routes/processos.routes");
 require("./jobs/notificacoes.job");
 
 const app = express();
@@ -65,5 +67,11 @@ app.use("/prescricoes", prescricoesRoutes);
 
 //notificações
 app.use("/notificacoes", notificacoesRoutes);
+
+//prazo
+app.use("/prazos", prazoRoutes);
+
+//processo
+app.use("/processos", processosRoutes);
 
 module.exports = app;
