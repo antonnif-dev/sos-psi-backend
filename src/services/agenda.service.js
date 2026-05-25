@@ -41,6 +41,7 @@ async function criarConsulta(tenantId, data, psicologoId) {
     data.pacienteNome = paciente.nome;
     data.status = "agendada";
     data.psicologoId = psicologoId;
+    data.tipo = "consulta";
 
     const psicologo =
         await usuariosRepo.buscarPorUid(

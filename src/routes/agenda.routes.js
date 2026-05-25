@@ -32,16 +32,6 @@ router.get("/realizadas", auth, tenant, role(["admin", "psicologo", "secretaria"
 
 router.put("/:id", auth, tenant, role(["admin", "psicologo", "secretaria"]), controller.editarConsulta);
 
-/* rota onde ganhar status realizada ganha +1 no contador
-router.put(
-    "/:id",
-    auth,
-    tenant,
-    role(["admin", "psicologo", "secretaria"]),
-    carregarUso,
-    verificarLimite("sessoesMesAtual"),
-    controller.editarConsulta
-);*/
 
 router.delete(
     "/:id",

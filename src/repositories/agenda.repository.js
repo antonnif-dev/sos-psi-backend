@@ -1,10 +1,10 @@
 const { db } = require("../config/firebase");
 const { v4: uuid } = require("uuid");
 const { collection, query, where, getDocs } = require('firebase/firestore');
+const { Timestamp } = require("firebase-admin/firestore");
 
 async function criarConsulta(tenantId, data) {
   const id = uuid();
-  const { Timestamp } = require("firebase-admin/firestore");
   await db
     .collection("tenants")
     .doc(tenantId)
@@ -31,7 +31,13 @@ async function listarConsultas(tenantId) {
   return snapshot.docs.map(doc => {
 
     const data = doc.data();
-
+    console.log("📄 RAW FIRESTORE DOC", {
+      id: doc.id,
+      tipo: data.tipo,
+      dataOriginal: data.data,
+      tipoData: typeof data.data,
+      possuiToDate: !!data.data?.toDate
+    });
     function converter(valor) {
 
       if (!valor) return null;
@@ -43,6 +49,15 @@ async function listarConsultas(tenantId) {
 
       // number (timestamp JS)
       if (typeof valor === "number") {
+        const teste = new Date(valor);
+
+        if (isNaN(teste.getTime())) {
+
+          console.error("❌ STRING DE DATA INVÁLIDA", valor);
+
+          return null;
+
+        }
         return new Date(valor).toISOString();
       }
 
@@ -324,7 +339,13 @@ async function listarConsultasPorPeriodo(
     const fim = new Date(endDate);
 
     fim.setHours(23, 59, 59, 999);
-
+    console.log("🧪 TIPOS DA QUERY");
+    console.log("inicio instanceof Date:", inicio instanceof Date);
+    console.log("fim instanceof Date:", fim instanceof Date);
+    console.log("inicio:", inicio);
+    console.log("fim:", fim);
+    console.log("inicio ISO:", inicio.toISOString());
+    console.log("fim ISO:", fim.toISOString());
     const snapshot = await db
       .collection("tenants")
       .doc(tenantId)
@@ -332,6 +353,8 @@ async function listarConsultasPorPeriodo(
       .where("data", ">=", inicio)
       .where("data", "<=", fim)
       .get();
+    console.log("📄 Snapshot vazio?", snapshot.empty);
+    console.log("📄 Quantidade:", snapshot.size);
 
     console.log("📄 Documentos encontrados:", snapshot.size);
 

@@ -41,9 +41,11 @@ async function criarPrazo(
 
             id: agendaId,
 
-            pacienteNome: data.cliente,
+            pacienteNome:
+                data.cliente || "Cliente",
 
-            observacoes: data.descricao,
+            observacoes:
+                data.descricao || "",
 
             data: Timestamp.fromDate(
                 new Date(`${data.dataLimite}T09:00:00`)
@@ -58,6 +60,9 @@ async function criarPrazo(
 
             psicologoId:
                 data.psicologoId || null,
+
+            psicologoNome:
+                data.psicologoNome || "Profissional",
 
             createdAt: Timestamp.now()
 
