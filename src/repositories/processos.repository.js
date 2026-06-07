@@ -54,9 +54,49 @@ async function deletarProcesso(tenantId, id) {
         .delete();
 }
 
+async function buscarPorId(
+    tenantId,
+    id
+) {
+
+    const doc = await db
+        .collection("tenants")
+        .doc(tenantId)
+        .collection(COLLECTION)
+        .doc(id)
+        .get();
+
+    if (!doc.exists) {
+        return null;
+    }
+
+    return doc.data();
+}
+
+async function atualizarUltimaSincronizacao(
+    tenantId,
+    processoId
+) {
+
+    await db
+        .collection("tenants")
+        .doc(tenantId)
+        .collection(COLLECTION)
+        .doc(processoId)
+        .update({
+
+            ultimaSincronizacao:
+                new Date()
+
+        });
+
+}
+
 module.exports = {
     criarProcesso,
     listarProcessos,
     editarProcesso,
-    deletarProcesso
+    deletarProcesso,
+    buscarPorId,
+    atualizarUltimaSincronizacao
 };

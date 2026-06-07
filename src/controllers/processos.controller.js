@@ -43,9 +43,40 @@ async function deletar(req, res) {
     }
 }
 
+async function sincronizar(req, res) {
+    try {
+
+        const resultado =
+            await service.sincronizarProcesso(
+                req.tenantId,
+                req.params.id
+            );
+
+        res.json(resultado);
+
+    } catch (error) {
+
+        console.error(
+            "ERRO SINCRONIZAR:"
+        );
+
+        console.error(error);
+
+        console.error(
+            error.stack
+        );
+
+        res.status(400).json({
+            error: error.message
+        });
+
+    }
+}
+
 module.exports = {
     listar,
     criar,
     editar,
-    deletar
+    deletar,
+    sincronizar
 };

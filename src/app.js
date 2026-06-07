@@ -17,6 +17,7 @@ const notificacoesRoutes = require("./routes/notificacoes.routes");
 const userRoutes = require("./routes/user.routes");
 const prazoRoutes = require("./routes/prazo.routes");
 const processosRoutes = require("./routes/processos.routes");
+const movimentacoesRoutes = require("./routes/movimentacoes.routes");
 require("./jobs/notificacoes.job");
 
 const app = express();
@@ -73,5 +74,8 @@ app.use("/prazos", prazoRoutes);
 
 //processo
 app.use("/processos", processosRoutes);
+
+//movimentações
+app.use("/movimentacoes", movimentacoesRoutes);
 
 module.exports = app;

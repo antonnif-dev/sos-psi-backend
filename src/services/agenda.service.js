@@ -1,6 +1,7 @@
 const repo = require("../repositories/agenda.repository");
 const agendaEvents = require("../events/agenda.events");
 const usuariosRepo = require("../repositories/user.repository");
+const prazoRepo = require("../repositories/prazo.repository");
 
 async function criarConsulta(tenantId, data, psicologoId) {
     const pacientesRepo = require("../repositories/pacientes.repository");
@@ -196,7 +197,7 @@ async function listarConsultas(tenantId, user, filtros = {}) {
     }
 
     console.log("📄 Total consultas encontradas:", consultas.length);
-
+    
     const agora = new Date();
 
     for (const consulta of consultas) {

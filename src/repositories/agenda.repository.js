@@ -392,6 +392,16 @@ async function listarConsultasPorPeriodo(
 
     });
 
+    console.log("📅 EVENTOS DA COLEÇÃO AGENDA:");
+
+    consultas.forEach(c => {
+      console.log({
+        id: c.id,
+        tipo: c.tipo,
+        data: c.data
+      });
+    });
+
     console.log("✅ Consultas convertidas:", consultas.length);
 
     return consultas;

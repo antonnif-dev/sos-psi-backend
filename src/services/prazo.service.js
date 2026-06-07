@@ -6,6 +6,8 @@ async function listarPrazos(tenantId) {
 }
 
 async function criarPrazo(tenantId, data) {
+    console.log("📅 PRAZO RECEBIDO:");
+    console.log(JSON.stringify(data, null, 2));
     if (!data.cliente) {
         throw new Error("Cliente obrigatório");
     }

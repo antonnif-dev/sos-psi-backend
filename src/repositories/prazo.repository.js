@@ -2,10 +2,7 @@ const { db } = require("../config/firebase");
 const { v4: uuid } = require("uuid");
 const { Timestamp } = require("firebase-admin/firestore");
 
-async function criarPrazo(
-    tenantId,
-    data
-) {
+async function criarPrazo(tenantId, data) {
 
     const id = uuid();
 
@@ -117,9 +114,38 @@ async function deletarPrazo(
         .delete();
 }
 
+async function existePrazo(
+    tenantId,
+    processoId,
+    descricao
+) {
+
+    const snapshot =
+        await db
+            .collection("tenants")
+            .doc(tenantId)
+            .collection("prazos")
+            .where(
+                "processoId",
+                "==",
+                processoId
+            )
+            .where(
+                "descricao",
+                "==",
+                descricao
+            )
+            .limit(1)
+            .get();
+
+    return !snapshot.empty;
+
+}
+
 module.exports = {
     criarPrazo,
     listarPrazos,
     editarPrazo,
-    deletarPrazo
+    deletarPrazo,
+    existePrazo
 };

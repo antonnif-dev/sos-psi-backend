@@ -22,6 +22,14 @@ router.post(
     controller.criar
 );
 
+router.post(
+    "/:id/sincronizar",
+    auth,
+    tenant,
+    role(["admin", "advogado"]),
+    controller.sincronizar
+);
+
 router.put(
     "/:id",
     auth,
