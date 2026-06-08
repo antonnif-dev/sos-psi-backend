@@ -4,6 +4,7 @@ const movimentacaoRepo = require("../repositories/movimentacoes.repository");
 const prazoService = require("./prazo.service");
 const { gerarPrazo } = require("./prazoDetector.service");
 const prazoRepo = require("../repositories/prazo.repository");
+const movimentacaoEvents = require("../events/movimentacoes.events");
 
 async function listarProcessos(tenantId) {
     return repo.listarProcessos(tenantId);
@@ -81,7 +82,7 @@ async function deletarProcesso(tenantId, id) {
     await repo.deletarProcesso(tenantId, id);
 }
 
-async function sincronizarProcesso( tenantId, processoId ) {
+async function sincronizarProcesso(tenantId, processoId) {
 
     const processo =
         await repo.buscarPorId(
@@ -123,20 +124,27 @@ async function sincronizarProcesso( tenantId, processoId ) {
 
         const existe =
             await movimentacaoRepo.existeMovimentacao(
-                    tenantId,
-                    processoId,
-                    mov.codigo,
-                    mov.dataHora
-                );
+                tenantId,
+                processoId,
+                mov.codigo,
+                mov.dataHora
+            );
 
         if (existe) {
             continue;
         }
 
         await movimentacaoRepo.criarMovimentacao(
+            tenantId,
+            processoId,
+            mov
+        );
+
+        await movimentacaoEvents
+            .movimentacaoCriada(
                 tenantId,
-                processoId,
-                mov
+                mov,
+                processo
             );
 
         console.log(
@@ -224,10 +232,44 @@ async function sincronizarProcesso( tenantId, processoId ) {
     };
 }
 
+async function sincronizarTodosProcessos() {
+
+    const tenants =
+        await tenantRepo.listar();
+
+    for (const tenant of tenants) {
+
+        const processos =
+            await processoRepo.listarAtivos(
+                tenant.id
+            );
+
+        for (const processo of processos) {
+
+            try {
+
+                await sincronizarProcesso(
+                    tenant.id,
+                    processo.id
+                );
+
+            } catch (error) {
+
+                console.error(error);
+
+            }
+
+        }
+
+    }
+
+}
+
 module.exports = {
     listarProcessos,
     criarProcesso,
     editarProcesso,
     deletarProcesso,
-    sincronizarProcesso
+    sincronizarProcesso,
+    sincronizarTodosProcessos
 };

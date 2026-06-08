@@ -121,6 +121,14 @@ module.exports = {
         },
         link: () => "/agenda",
         channels: ["app"]
-    }
+    },
+
+    MOVIMENTACAO_PROCESSUAL: ({ data }) => ({
+        titulo:
+            "Nova movimentação processual",
+
+        mensagem:
+            `${data.descricao} (${data.processo})`
+    })
 
 };
